@@ -1,15 +1,34 @@
-version: "3.8"
+version: "3.7"
 services:
+
   contech-site:
     container_name: contech-site
     build: .
     restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.contech.rule=Host(`rlucio.com/ct`)"
-      - "traefik.http.services.contech.loadbalancer.server.port=3000"
     networks:
-      - RLnet
+      - RLnet ## Usa a rede interna existente
+    environment:
+      - NODE_ENV=production
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.contech.rule=Host(`contech.rlucio.com`)
+        - traefik.http.services.contech.loadbalancer.server.port=3000
+        - traefik.http.routers.contech.service=contech-site
+        - traefik.http.routers.contech.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.contech.entrypoints=websecure
+        - traefik.http.routers.contech.tls=true
+
 networks:
-  web:
+  RLnet:
+    name: RLnet
     external: true
