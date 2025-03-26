@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  contech-site:
+    container_name: contech-site
+    build: .
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.contech.rule=Host(`rlucio.com/ct`)"
+      - "traefik.http.services.contech.loadbalancer.server.port=3000"
+    networks:
+      - RLnet
+networks:
+  web:
+    external: true
